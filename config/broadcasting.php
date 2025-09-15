@@ -62,37 +62,51 @@ return [
 
 
 
+    // 'pusher' => [
+
+    //   'driver' => 'pusher',
+
+    //   'key' => env('PUSHER_APP_KEY'),
+
+    //   'secret' => env('PUSHER_APP_SECRET'),
+
+    //   'app_id' => env('PUSHER_APP_ID'),
+
+    //   'options' => [
+    //     'cluster' => env('PUSHER_APP_CLUSTER'),
+    //     'useTLS' => true,
+    //     'encrypted' => true,
+    //     'curl_options' => [
+    //       CURLOPT_SSL_VERIFYHOST => 2,
+    //       CURLOPT_SSL_VERIFYPEER => true,
+    //       CURLOPT_CAINFO => base_path('cacert.pem'),
+    //       CURLOPT_CAPATH => base_path('cacert.pem'),
+    //     ],
+    //     'host' => 'api-' . env('PUSHER_APP_CLUSTER') . '.pusher.com',
+    //     'port' => 443,
+    //     'scheme' => 'https',
+    //   ],
+    //   'client_options' => [
+    //     'verify' => true, // to disable TLS checks
+    //   ],
+
+    // ],
+
+
     'pusher' => [
-
       'driver' => 'pusher',
-
       'key' => env('PUSHER_APP_KEY'),
-
       'secret' => env('PUSHER_APP_SECRET'),
-
       'app_id' => env('PUSHER_APP_ID'),
-
       'options' => [
         'cluster' => env('PUSHER_APP_CLUSTER'),
-        'useTLS' => true,
-        'encrypted' => true,
-        'curl_options' => [
-          CURLOPT_SSL_VERIFYHOST => 2,
-          CURLOPT_SSL_VERIFYPEER => true,
-          CURLOPT_CAINFO => base_path('cacert.pem'),
-          CURLOPT_CAPATH => base_path('cacert.pem'),
-        ],
-        'host' => 'api-' . env('PUSHER_APP_CLUSTER') . '.pusher.com',
+        'host' => 'api-mt1.pusher.com',
         'port' => 443,
         'scheme' => 'https',
+        'useTLS' => false,
+        'encrypted' => false,
       ],
-      'client_options' => [
-        'verify' => true, // to disable TLS checks
-      ],
-
     ],
-
-
 
     'ably' => [
 

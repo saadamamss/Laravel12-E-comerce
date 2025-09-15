@@ -91,10 +91,15 @@ const _sfc_main$V = {
           groups[key].unreadCount++;
         }
       });
-      return Object.values(groups).sort((a, b) => new Date(b.latestDate) - new Date(a.latestDate));
+      return Object.values(groups).sort(
+        (a, b) => new Date(b.latestDate) - new Date(a.latestDate)
+      );
     });
     const totalUnreadCount = computed(() => {
-      return groupedNotifications.value.reduce((sum, group) => sum + group.unreadCount, 0);
+      return groupedNotifications.value.reduce(
+        (sum, group) => sum + group.unreadCount,
+        0
+      );
     });
     const getGroupTitle = (notification) => {
       const type = notification.data.notifiable_type;
@@ -107,13 +112,16 @@ const _sfc_main$V = {
       }
     };
     const formatTime = (date) => {
-      return new Date(date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      return new Date(date).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
     };
     const formatNotifiableType = (type) => {
       const types = {
-        "Order": "Order",
-        "Review": "Review",
-        "Contact": "Contact"
+        Order: "Order",
+        Review: "Review",
+        Contact: "Contact"
       };
       return types[type] || type;
     };
@@ -124,12 +132,29 @@ const _sfc_main$V = {
     };
     onMounted(() => {
       document.addEventListener("click", clickOutside);
+      window.Echo.connector.pusher.connection.bind("error", (err) => {
+        console.error("Pusher connection error:", err);
+      });
+      window.Echo.connector.pusher.connection.bind("state_change", (states) => {
+        console.log("Pusher state changed:", states);
+      });
+      window.Echo.connector.pusher.connection.bind("connected", () => {
+        console.log(
+          "Successfully connected to Pusher! to channel : user." + pageProps.auth.user.id
+        );
+      });
       if (pageProps.auth.user) {
         `user.${pageProps.auth.user.id}-channel`;
-        window.Echo.private("user." + pageProps.auth.user.id).notification((notification) => {
-          notifications.value.unshift(notification);
-        });
+        window.Echo.private("user." + pageProps.auth.user.id).notification(
+          (notification) => {
+            console.log(notification);
+            notifications.value.unshift(notification);
+          }
+        );
       }
+      window.Echo.private(`App.Models.User.${1}`).listen(".new.message", (e) => {
+        console.log("📨 Private message received:", e.message);
+      });
     });
     onUnmounted(() => {
       document.removeEventListener("click", clickOutside);
@@ -151,7 +176,9 @@ const _sfc_main$V = {
         }
         _push(`<!--[-->`);
         ssrRenderList(groupedNotifications.value, (group) => {
-          _push(`<div class="${ssrRenderClass([{ "bg-blue-50": group.unreadCount > 0 }, "border-b last:border-b-0 hover:bg-gray-50 cursor-pointer transition-colors"])}"><div class="px-4 py-3"><div class="flex justify-between items-start"><div><p class="${ssrRenderClass([{ "text-blue-600": group.unreadCount > 0 }, "font-medium text-sm"])}">${ssrInterpolate(group.title)}</p><p class="text-xs text-gray-500 mt-1">${ssrInterpolate(formatTime(group.latestDate))}</p></div>`);
+          _push(`<div class="${ssrRenderClass([{ "bg-blue-50": group.unreadCount > 0 }, "border-b last:border-b-0 hover:bg-gray-50 cursor-pointer transition-colors"])}"><div class="px-4 py-3"><div class="flex justify-between items-start"><div><p class="${ssrRenderClass([{
+            "text-blue-600": group.unreadCount > 0
+          }, "font-medium text-sm"])}">${ssrInterpolate(group.title)}</p><p class="text-xs text-gray-500 mt-1">${ssrInterpolate(formatTime(group.latestDate))}</p></div>`);
           if (group.count > 1) {
             _push(`<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">${ssrInterpolate(group.count)}</span>`);
           } else {
@@ -1230,11 +1257,11 @@ const _sfc_main$Q = {
     const formData = ref(props.address ?? initialData);
     return (_ctx, _push, _parent, _attrs) => {
       var _a;
-      _push(`<div${ssrRenderAttrs(mergeProps({ class: "border-2 border-[#ff2832] rounded-lg p-6 bg-white shadow-md" }, _attrs))} data-v-42a6ff9b><h3 class="text-lg font-medium text-[#444444] mb-4" data-v-42a6ff9b>${ssrInterpolate(((_a = __props.address) == null ? void 0 : _a.id) ? "Edit Address" : "Add New Address")}</h3><form data-v-42a6ff9b><div class="grid grid-cols-1 md:grid-cols-2 gap-4" data-v-42a6ff9b><div class="md:col-span-2" data-v-42a6ff9b><label for="name" class="block text-sm font-medium text-[#444444] mb-1" data-v-42a6ff9b>Full Name *</label><input id="name"${ssrRenderAttr("value", formData.value.name)} type="text" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-42a6ff9b></div><div data-v-42a6ff9b><label for="phone" class="block text-sm font-medium text-[#444444] mb-1" data-v-42a6ff9b>Phone Number *</label><input id="phone"${ssrRenderAttr("value", formData.value.phone)} type="tel" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-42a6ff9b></div><div class="md:col-span-2" data-v-42a6ff9b><label for="address_1" class="block text-sm font-medium text-[#444444] mb-1" data-v-42a6ff9b>address_1 Address *</label><input id="address_1"${ssrRenderAttr("value", formData.value.address_1)} type="text" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-42a6ff9b></div><div class="md:col-span-2" data-v-42a6ff9b><label for="address_2" class="block text-sm font-medium text-[#444444] mb-1" data-v-42a6ff9b>Apartment, Suite, etc. (Optional)</label><input id="address_2"${ssrRenderAttr("value", formData.value.address_2)} type="text" class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-42a6ff9b></div><div data-v-42a6ff9b><label for="city" class="block text-sm font-medium text-[#444444] mb-1" data-v-42a6ff9b>City *</label><input id="city"${ssrRenderAttr("value", formData.value.city)} type="text" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-42a6ff9b></div><div data-v-42a6ff9b><label for="province" class="block text-sm font-medium text-[#444444] mb-1" data-v-42a6ff9b>province/Province *</label><input id="province"${ssrRenderAttr("value", formData.value.province)} type="text" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-42a6ff9b></div><div data-v-42a6ff9b><label for="zipCode" class="block text-sm font-medium text-[#444444] mb-1" data-v-42a6ff9b>zipCode/Postal Code *</label><input id="zipCode"${ssrRenderAttr("value", formData.value.zipCode)} type="text" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-42a6ff9b></div><div data-v-42a6ff9b><label for="country" class="block text-sm font-medium text-[#444444] mb-1" data-v-42a6ff9b>Country *</label><select id="country" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-42a6ff9b><option value="" data-v-42a6ff9b${ssrIncludeBooleanAttr(Array.isArray(formData.value.country) ? ssrLooseContain(formData.value.country, "") : ssrLooseEqual(formData.value.country, "")) ? " selected" : ""}>Select Country</option><!--[-->`);
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "border-2 border-[#ff2832] rounded-lg p-6 bg-white shadow-md" }, _attrs))} data-v-df4d4b95><h3 class="text-lg font-medium text-[#444444] mb-4" data-v-df4d4b95>${ssrInterpolate(((_a = __props.address) == null ? void 0 : _a.id) ? "Edit Address" : "Add New Address")}</h3><form data-v-df4d4b95><div class="grid grid-cols-1 md:grid-cols-2 gap-4" data-v-df4d4b95><div class="md:col-span-2" data-v-df4d4b95><label for="name" class="block text-sm font-medium text-[#444444] mb-1" data-v-df4d4b95>Full Name *</label><input id="name"${ssrRenderAttr("value", formData.value.name)} type="text" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-df4d4b95></div><div data-v-df4d4b95><label for="phone" class="block text-sm font-medium text-[#444444] mb-1" data-v-df4d4b95>Phone Number *</label><input id="phone"${ssrRenderAttr("value", formData.value.phone)} type="tel" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-df4d4b95></div><div class="md:col-span-2" data-v-df4d4b95><label for="address_1" class="block text-sm font-medium text-[#444444] mb-1" data-v-df4d4b95>address_1 Address *</label><input id="address_1"${ssrRenderAttr("value", formData.value.address_1)} type="text" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-df4d4b95></div><div class="md:col-span-2" data-v-df4d4b95><label for="address_2" class="block text-sm font-medium text-[#444444] mb-1" data-v-df4d4b95>Apartment, Suite, etc. (Optional)</label><input id="address_2"${ssrRenderAttr("value", formData.value.address_2)} type="text" class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-df4d4b95></div><div data-v-df4d4b95><label for="city" class="block text-sm font-medium text-[#444444] mb-1" data-v-df4d4b95>City *</label><input id="city"${ssrRenderAttr("value", formData.value.city)} type="text" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-df4d4b95></div><div data-v-df4d4b95><label for="province" class="block text-sm font-medium text-[#444444] mb-1" data-v-df4d4b95>province/Province *</label><input id="province"${ssrRenderAttr("value", formData.value.province)} type="text" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-df4d4b95></div><div data-v-df4d4b95><label for="zipCode" class="block text-sm font-medium text-[#444444] mb-1" data-v-df4d4b95>zipCode/Postal Code *</label><input id="zipCode"${ssrRenderAttr("value", formData.value.zipCode)} type="text" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-df4d4b95></div><div data-v-df4d4b95><label for="country" class="block text-sm font-medium text-[#444444] mb-1" data-v-df4d4b95>Country *</label><select id="country" required class="block w-full px-3 py-2 border border-[#e6e3de] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff2832]/50 focus:border-[#ff2832]/50 transition-all duration-200" data-v-df4d4b95><option value="" data-v-df4d4b95${ssrIncludeBooleanAttr(Array.isArray(formData.value.country) ? ssrLooseContain(formData.value.country, "") : ssrLooseEqual(formData.value.country, "")) ? " selected" : ""}>Select Country</option><!--[-->`);
       ssrRenderList(countries.value, (country) => {
-        _push(`<option${ssrRenderAttr("value", country)} data-v-42a6ff9b${ssrIncludeBooleanAttr(Array.isArray(formData.value.country) ? ssrLooseContain(formData.value.country, country) : ssrLooseEqual(formData.value.country, country)) ? " selected" : ""}>${ssrInterpolate(country)}</option>`);
+        _push(`<option${ssrRenderAttr("value", country)} data-v-df4d4b95${ssrIncludeBooleanAttr(Array.isArray(formData.value.country) ? ssrLooseContain(formData.value.country, country) : ssrLooseEqual(formData.value.country, country)) ? " selected" : ""}>${ssrInterpolate(country)}</option>`);
       });
-      _push(`<!--]--></select></div><div class="md:col-span-2 flex items-center" data-v-42a6ff9b><input id="default"${ssrIncludeBooleanAttr(Array.isArray(formData.value.is_default) ? ssrLooseContain(formData.value.is_default, null) : formData.value.is_default) ? " checked" : ""} type="checkbox" class="h-4 w-4 text-[#ff2832] border-[#e6e3de] rounded focus:ring-[#ff2832]/50" data-v-42a6ff9b><label for="default" class="ml-2 block text-sm text-[#444444]" data-v-42a6ff9b> Set as default address </label></div></div><div class="mt-6 flex justify-end space-x-3" data-v-42a6ff9b><button type="button" class="px-4 py-2 border border-[#e6e3de] rounded-md shadow-sm text-sm font-medium text-[#444444] hover:bg-[#e6e3de]/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff2832]/50 transition-all duration-200" data-v-42a6ff9b> Cancel </button><button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#ff2832] hover:bg-[#ff2832]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff2832]/50 transition-all duration-200"${ssrIncludeBooleanAttr(formData.value.processing) ? " disabled" : ""} data-v-42a6ff9b>${ssrInterpolate(formData.value.processing ? "Saving..." : "Save Address")}</button></div></form></div>`);
+      _push(`<!--]--></select></div><div class="md:col-span-2 flex items-center" data-v-df4d4b95><input id="default"${ssrIncludeBooleanAttr(Array.isArray(formData.value.is_default) ? ssrLooseContain(formData.value.is_default, null) : formData.value.is_default) ? " checked" : ""} type="checkbox" class="h-4 w-4 text-[#ff2832] border-[#e6e3de] rounded focus:ring-[#ff2832]/50" data-v-df4d4b95><label for="default" class="ml-2 block text-sm text-[#444444]" data-v-df4d4b95> Set as default address </label></div></div><div class="mt-6 flex justify-end space-x-3" data-v-df4d4b95><button type="button" class="px-4 py-2 border border-[#e6e3de] rounded-md shadow-sm text-sm font-medium text-[#444444] hover:bg-[#e6e3de]/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff2832]/50 transition-all duration-200" data-v-df4d4b95> Cancel </button><button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#ff2832] hover:bg-[#ff2832]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff2832]/50 transition-all duration-200"${ssrIncludeBooleanAttr(formData.value.processing) ? " disabled" : ""} data-v-df4d4b95>${ssrInterpolate(formData.value.processing ? "Saving..." : "Save Address")}</button></div></form></div>`);
     };
   }
 };
@@ -1244,7 +1271,7 @@ _sfc_main$Q.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/components/AddressEditForm.vue");
   return _sfc_setup$Q ? _sfc_setup$Q(props, ctx) : void 0;
 };
-const AddressEditForm = /* @__PURE__ */ _export_sfc(_sfc_main$Q, [["__scopeId", "data-v-42a6ff9b"]]);
+const AddressEditForm = /* @__PURE__ */ _export_sfc(_sfc_main$Q, [["__scopeId", "data-v-df4d4b95"]]);
 const _sfc_main$P = {
   __name: "AuthenticatedLayout",
   __ssrInlineRender: true,
@@ -1353,7 +1380,7 @@ const _sfc_main$O = {
     const showAddForm = ref(false);
     const setDefaultAddress = async (id) => {
       try {
-        const { data } = await API.patch("set-address-default", id);
+        const { data } = await API.post("set-address-default", id);
         if (data.success) {
           resetDefaultAddress(id);
           changeDefaultAddress(id);
@@ -1401,28 +1428,28 @@ const _sfc_main$O = {
         default: withCtx((_, _push2, _parent2, _scopeId) => {
           if (_push2) {
             if (!showAddForm.value && !editingAddress.value) {
-              _push2(`<div class="bg-white shadow-md rounded-lg border px-3 py-3 flex justify-end" data-v-f2164e12${_scopeId}><button class="bg-[#ff2832]/90 px-4 py-2 rounded-lg text-white hover:bg-[#ff2832]/80" data-v-f2164e12${_scopeId}>Add New Address</button></div>`);
+              _push2(`<div class="bg-white shadow-md rounded-lg border px-3 py-3 flex justify-end" data-v-11796587${_scopeId}><button class="bg-[#ff2832]/90 px-4 py-2 rounded-lg text-white hover:bg-[#ff2832]/80" data-v-11796587${_scopeId}>Add New Address</button></div>`);
             } else {
               _push2(`<!---->`);
             }
             if (!showAddForm.value && !editingAddress.value) {
               _push2(`<!--[-->`);
               ssrRenderList(addresses.value, (address) => {
-                _push2(`<div class="${ssrRenderClass([address.is_default ? "ring-1 ring-[#ff2832]" : "hover:ring-1 hover:ring-[#ff2832]/80", "rounded-lg p-6 bg-white transition-shadow duration-200"])}" data-v-f2164e12${_scopeId}><div class="flex justify-between items-start" data-v-f2164e12${_scopeId}><div data-v-f2164e12${_scopeId}><h3 class="font-medium text-[#444444]" data-v-f2164e12${_scopeId}>${ssrInterpolate(address.name)}</h3><p class="text-sm text-[#444444]/80 mt-1" data-v-f2164e12${_scopeId}>${ssrInterpolate(address.phone)}</p></div><div class="flex space-x-2" data-v-f2164e12${_scopeId}>`);
+                _push2(`<div class="${ssrRenderClass([address.is_default ? "ring-1 ring-[#ff2832]" : "hover:ring-1 hover:ring-[#ff2832]/80", "rounded-lg p-6 bg-white transition-shadow duration-200"])}" data-v-11796587${_scopeId}><div class="flex justify-between items-start" data-v-11796587${_scopeId}><div data-v-11796587${_scopeId}><h3 class="font-medium text-[#444444]" data-v-11796587${_scopeId}>${ssrInterpolate(address.name)}</h3><p class="text-sm text-[#444444]/80 mt-1" data-v-11796587${_scopeId}>${ssrInterpolate(address.phone)}</p></div><div class="flex space-x-2" data-v-11796587${_scopeId}>`);
                 if (address.is_default) {
-                  _push2(`<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#ff2832]/10 text-[#ff2832]" data-v-f2164e12${_scopeId}> Default </span>`);
+                  _push2(`<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#ff2832]/10 text-[#ff2832]" data-v-11796587${_scopeId}> Default </span>`);
                 } else {
                   _push2(`<!---->`);
                 }
-                _push2(`<button class="text-[#444444]/60 hover:text-[#ff2832] transition-colors duration-200" data-v-f2164e12${_scopeId}><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" data-v-f2164e12${_scopeId}><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" data-v-f2164e12${_scopeId}></path></svg></button><button class="text-[#444444]/60 hover:text-[#ff2832] transition-colors duration-200" data-v-f2164e12${_scopeId}><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" data-v-f2164e12${_scopeId}><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" data-v-f2164e12${_scopeId}></path></svg></button></div></div><div class="mt-4 text-sm text-[#444444]" data-v-f2164e12${_scopeId}><p data-v-f2164e12${_scopeId}>${ssrInterpolate(address.address_1)}</p>`);
+                _push2(`<button class="text-[#444444]/60 hover:text-[#ff2832] transition-colors duration-200" data-v-11796587${_scopeId}><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" data-v-11796587${_scopeId}><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" data-v-11796587${_scopeId}></path></svg></button><button class="text-[#444444]/60 hover:text-[#ff2832] transition-colors duration-200" data-v-11796587${_scopeId}><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" data-v-11796587${_scopeId}><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" data-v-11796587${_scopeId}></path></svg></button></div></div><div class="mt-4 text-sm text-[#444444]" data-v-11796587${_scopeId}><p data-v-11796587${_scopeId}>${ssrInterpolate(address.address_1)}</p>`);
                 if (address.address_2) {
-                  _push2(`<p data-v-f2164e12${_scopeId}>${ssrInterpolate(address.address_2)}</p>`);
+                  _push2(`<p data-v-11796587${_scopeId}>${ssrInterpolate(address.address_2)}</p>`);
                 } else {
                   _push2(`<!---->`);
                 }
-                _push2(`<p data-v-f2164e12${_scopeId}>${ssrInterpolate(address.city)}, ${ssrInterpolate(address.province)} ${ssrInterpolate(address.zipCode)}</p><p data-v-f2164e12${_scopeId}>${ssrInterpolate(address.country)}</p></div>`);
+                _push2(`<p data-v-11796587${_scopeId}>${ssrInterpolate(address.city)}, ${ssrInterpolate(address.province)} ${ssrInterpolate(address.zipCode)}</p><p data-v-11796587${_scopeId}>${ssrInterpolate(address.country)}</p></div>`);
                 if (!address.is_default) {
-                  _push2(`<div class="mt-4" data-v-f2164e12${_scopeId}><button class="text-sm font-medium text-[#ff2832] hover:text-[#ff2832]/80 transition-colors duration-200" data-v-f2164e12${_scopeId}> Set as default </button></div>`);
+                  _push2(`<div class="mt-4" data-v-11796587${_scopeId}><button class="text-sm font-medium text-[#ff2832] hover:text-[#ff2832]/80 transition-colors duration-200" data-v-11796587${_scopeId}> Set as default </button></div>`);
                 } else {
                   _push2(`<!---->`);
                 }
@@ -1548,7 +1575,7 @@ _sfc_main$O.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Address.vue");
   return _sfc_setup$O ? _sfc_setup$O(props, ctx) : void 0;
 };
-const Address = /* @__PURE__ */ _export_sfc(_sfc_main$O, [["__scopeId", "data-v-f2164e12"]]);
+const Address = /* @__PURE__ */ _export_sfc(_sfc_main$O, [["__scopeId", "data-v-11796587"]]);
 const __vite_glob_0_1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Address
@@ -2514,7 +2541,7 @@ function _sfc_ssrRender$2(_ctx, _push, _parent, _attrs) {
   _push(`<div${ssrRenderAttrs(mergeProps({
     class: "spinner-border",
     role: "status"
-  }, _attrs))} data-v-99f40713><span class="sr-only" data-v-99f40713></span></div>`);
+  }, _attrs))} data-v-6afa791b><div class="spinner-border-inner" data-v-6afa791b></div></div>`);
 }
 const _sfc_setup$t = _sfc_main$t.setup;
 _sfc_main$t.setup = (props, ctx) => {
@@ -2522,7 +2549,7 @@ _sfc_main$t.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/components/Spinner.vue");
   return _sfc_setup$t ? _sfc_setup$t(props, ctx) : void 0;
 };
-const Spinner = /* @__PURE__ */ _export_sfc(_sfc_main$t, [["ssrRender", _sfc_ssrRender$2], ["__scopeId", "data-v-99f40713"]]);
+const Spinner = /* @__PURE__ */ _export_sfc(_sfc_main$t, [["ssrRender", _sfc_ssrRender$2], ["__scopeId", "data-v-6afa791b"]]);
 const _sfc_main$s = {
   __name: "CartItemQty",
   __ssrInlineRender: true,
@@ -2547,11 +2574,11 @@ const _sfc_main$s = {
   setup(__props, { emit: __emit }) {
     const loader = ref(false);
     return (_ctx, _push, _parent, _attrs) => {
-      _push(`<div${ssrRenderAttrs(mergeProps({ class: "quantity-input d-flex align-items-center py-1 px-2" }, _attrs))}><div class="d-flex gap-2"><a class="btn btn-reduce m-0"${ssrIncludeBooleanAttr(loader.value ? true : void 0) ? " disabled" : ""}></a><a class="btn btn-increase m-0"${ssrIncludeBooleanAttr(loader.value ? true : void 0) ? " disabled" : ""}></a></div><div style="${ssrRenderStyle({ "flex": "1" })}" class="d-flex justify-content-center">`);
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "quantity-input d-flex align-items-center py-1 px-2" }, _attrs))} data-v-dd726502><div class="d-flex gap-2" data-v-dd726502><a class="btn btn-reduce m-0"${ssrIncludeBooleanAttr(loader.value ? true : void 0) ? " disabled" : ""} data-v-dd726502></a><a class="btn btn-increase m-0"${ssrIncludeBooleanAttr(loader.value ? true : void 0) ? " disabled" : ""} data-v-dd726502></a></div><div style="${ssrRenderStyle({ "flex": "1" })}" class="d-flex justify-content-center item-qty" data-v-dd726502>`);
       if (loader.value) {
         _push(ssrRenderComponent(Spinner, null, null, _parent));
       } else {
-        _push(`<span>${ssrInterpolate(__props.quantity)}</span>`);
+        _push(`<span data-v-dd726502>${ssrInterpolate(__props.quantity)}</span>`);
       }
       _push(`</div></div>`);
     };
@@ -2563,6 +2590,7 @@ _sfc_main$s.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/components/CartItemQty.vue");
   return _sfc_setup$s ? _sfc_setup$s(props, ctx) : void 0;
 };
+const CartItemQty = /* @__PURE__ */ _export_sfc(_sfc_main$s, [["__scopeId", "data-v-dd726502"]]);
 const _sfc_main$r = {
   __name: "CartItemRemover",
   __ssrInlineRender: true,
@@ -2682,7 +2710,7 @@ const _sfc_main$q = {
               if (((_a = cart.value) == null ? void 0 : _a.count) > 0) {
                 _push2(`<div${_scopeId}><div class="wrap-iten-in-cart"${_scopeId}><h3 class="box-title"${_scopeId}>Products Name</h3><ul class="products-cart"${_scopeId}><!--[-->`);
                 ssrRenderList(cart.value.content, (item, index) => {
-                  var _a2, _b2, _c, _d, _e;
+                  var _a2, _b2, _c, _d, _e, _f, _g, _h;
                   _push2(`<li class="pr-cart-item"${_scopeId}><div class="product-image"${_scopeId}><figure${_scopeId}>`);
                   if ((_a2 = item.model) == null ? void 0 : _a2.images) {
                     _push2(`<img${ssrRenderAttr("src", `/assets/images/products/${(_c = (_b2 = item.model) == null ? void 0 : _b2.images) == null ? void 0 : _c.split(
@@ -2691,12 +2719,28 @@ const _sfc_main$q = {
                   } else {
                     _push2(`<!---->`);
                   }
-                  _push2(`</figure></div><div class="product-name"${_scopeId}><a class="link-to-product"${ssrRenderAttr("href", `/products/${(_d = item.model) == null ? void 0 : _d.slug}`)}${_scopeId}>${ssrInterpolate(item.name)}</a></div><div class="price-field produtc-price"${_scopeId}><p class="price"${_scopeId}> $${ssrInterpolate(item.price)}</p></div><div class="quantity"${_scopeId}>`);
-                  _push2(ssrRenderComponent(_sfc_main$s, {
+                  _push2(`</figure></div><div class="product-name"${_scopeId}><a class="link-to-product"${ssrRenderAttr("href", `/products/${(_d = item.model) == null ? void 0 : _d.slug}`)}${_scopeId}>${ssrInterpolate(item.name)}</a><div${_scopeId}>`);
+                  if ((_e = item.options) == null ? void 0 : _e.color) {
+                    _push2(`<p class="infor"${_scopeId}> Color: <span${_scopeId}>${ssrInterpolate(item.options.color)}</span></p>`);
+                  } else {
+                    _push2(`<!---->`);
+                  }
+                  if ((_f = item.options) == null ? void 0 : _f.size) {
+                    _push2(`<p class="infor"${_scopeId}> Size: <span${_scopeId}>${ssrInterpolate(item.options.size)}</span></p>`);
+                  } else {
+                    _push2(`<!---->`);
+                  }
+                  if ((_g = item.options) == null ? void 0 : _g.material) {
+                    _push2(`<p class="infor"${_scopeId}> Material: <span${_scopeId}>${ssrInterpolate(item.options.material)}</span></p>`);
+                  } else {
+                    _push2(`<!---->`);
+                  }
+                  _push2(`</div></div><div class="price-field produtc-price"${_scopeId}><p class="price"${_scopeId}> $${ssrInterpolate(item.price)}</p></div><div class="quantity"${_scopeId}>`);
+                  _push2(ssrRenderComponent(CartItemQty, {
                     onRefreshCart: refreshCart,
                     quantity: item.qty,
                     rowId: item.rowId,
-                    maxQty: ((_e = item.model) == null ? void 0 : _e.quantity) ?? 0
+                    maxQty: ((_h = item.model) == null ? void 0 : _h.quantity) ?? 0
                   }, null, _parent2, _scopeId));
                   _push2(`</div><div class="price-field sub-total"${_scopeId}><p class="price"${_scopeId}> $${ssrInterpolate(item.subtotal)}</p></div>`);
                   _push2(ssrRenderComponent(_sfc_main$r, {
@@ -2705,7 +2749,7 @@ const _sfc_main$q = {
                   }, null, _parent2, _scopeId));
                   _push2(`</li>`);
                 });
-                _push2(`<!--]--></ul></div><div class="row mx-0 border py-3 px-3 gap-y-5"${_scopeId}><div class="col-12 col-md-4"${_scopeId}><h4 class="text-lg md:text-xl mb-3"${_scopeId}>Order Summary</h4><p class="flex justify-between mb-3 font-bold"${_scopeId}><span class="text-sm"${_scopeId}>Subtotal </span><b class="text-sm"${_scopeId}> $${ssrInterpolate(cart.value.subtotal)}</b></p><p class="flex justify-between mb-3 font-bold"${_scopeId}><span class="text-sm"${_scopeId}>Shipping</span><b class="text-sm"${_scopeId}>Free Shipping</b></p><p class="flex justify-between mb-3 font-bold"${_scopeId}><span class="text-sm"${_scopeId}>Tax</span><b class="text-sm"${_scopeId}> $${ssrInterpolate(cart.value.tax)}</b></p>`);
+                _push2(`<!--]--></ul></div><div class="row mx-0 border py-3 px-3 gap-y-5"${_scopeId}><div class="col-12 col-md-4"${_scopeId}><h4 class="text-lg md:text-xl mb-3"${_scopeId}> Order Summary </h4><p class="flex justify-between mb-3 font-bold"${_scopeId}><span class="text-sm"${_scopeId}>Subtotal </span><b class="text-sm"${_scopeId}> $${ssrInterpolate(cart.value.subtotal)}</b></p><p class="flex justify-between mb-3 font-bold"${_scopeId}><span class="text-sm"${_scopeId}>Shipping</span><b class="text-sm"${_scopeId}>Free Shipping</b></p><p class="flex justify-between mb-3 font-bold"${_scopeId}><span class="text-sm"${_scopeId}>Tax</span><b class="text-sm"${_scopeId}> $${ssrInterpolate(cart.value.tax)}</b></p>`);
                 if (cart.value.coupon) {
                   _push2(`<p class="flex justify-between mb-3 font-bold"${_scopeId}><span class="text-sm"${_scopeId}>Discount</span><b class="text-sm"${_scopeId}> $${ssrInterpolate(cart.value.discount)}</b></p>`);
                 } else {
@@ -2721,7 +2765,9 @@ const _sfc_main$q = {
                     } else {
                       _push2(`<!---->`);
                     }
-                    _push2(`</div><button class="btn-prime px-3 py-2 flex gap-1 mt-3 transition" type="submit"${ssrIncludeBooleanAttr(applyCouponLoader.value) ? " disabled" : ""}${_scopeId}>`);
+                    _push2(`</div><button class="btn-prime px-3 py-2 flex gap-1 mt-3 transition" type="submit"${ssrIncludeBooleanAttr(
+                      applyCouponLoader.value
+                    ) ? " disabled" : ""}${_scopeId}>`);
                     if (applyCouponLoader.value) {
                       _push2(ssrRenderComponent(Spinner, null, null, _parent2, _scopeId));
                     } else {
@@ -2844,7 +2890,7 @@ const _sfc_main$q = {
                           createVNode("h3", { class: "box-title" }, "Products Name"),
                           createVNode("ul", { class: "products-cart" }, [
                             (openBlock(true), createBlock(Fragment, null, renderList(cart.value.content, (item, index) => {
-                              var _a2, _b2, _c, _d, _e;
+                              var _a2, _b2, _c, _d, _e, _f, _g, _h;
                               return openBlock(), createBlock("li", {
                                 class: "pr-cart-item",
                                 key: index
@@ -2864,17 +2910,40 @@ const _sfc_main$q = {
                                   createVNode("a", {
                                     class: "link-to-product",
                                     href: `/products/${(_d = item.model) == null ? void 0 : _d.slug}`
-                                  }, toDisplayString(item.name), 9, ["href"])
+                                  }, toDisplayString(item.name), 9, ["href"]),
+                                  createVNode("div", null, [
+                                    ((_e = item.options) == null ? void 0 : _e.color) ? (openBlock(), createBlock("p", {
+                                      key: 0,
+                                      class: "infor"
+                                    }, [
+                                      createTextVNode(" Color: "),
+                                      createVNode("span", null, toDisplayString(item.options.color), 1)
+                                    ])) : createCommentVNode("", true),
+                                    ((_f = item.options) == null ? void 0 : _f.size) ? (openBlock(), createBlock("p", {
+                                      key: 1,
+                                      class: "infor"
+                                    }, [
+                                      createTextVNode(" Size: "),
+                                      createVNode("span", null, toDisplayString(item.options.size), 1)
+                                    ])) : createCommentVNode("", true),
+                                    ((_g = item.options) == null ? void 0 : _g.material) ? (openBlock(), createBlock("p", {
+                                      key: 2,
+                                      class: "infor"
+                                    }, [
+                                      createTextVNode(" Material: "),
+                                      createVNode("span", null, toDisplayString(item.options.material), 1)
+                                    ])) : createCommentVNode("", true)
+                                  ])
                                 ]),
                                 createVNode("div", { class: "price-field produtc-price" }, [
                                   createVNode("p", { class: "price" }, " $" + toDisplayString(item.price), 1)
                                 ]),
                                 createVNode("div", { class: "quantity" }, [
-                                  createVNode(_sfc_main$s, {
+                                  createVNode(CartItemQty, {
                                     onRefreshCart: refreshCart,
                                     quantity: item.qty,
                                     rowId: item.rowId,
-                                    maxQty: ((_e = item.model) == null ? void 0 : _e.quantity) ?? 0
+                                    maxQty: ((_h = item.model) == null ? void 0 : _h.quantity) ?? 0
                                   }, null, 8, ["quantity", "rowId", "maxQty"])
                                 ]),
                                 createVNode("div", { class: "price-field sub-total" }, [
@@ -2890,7 +2959,7 @@ const _sfc_main$q = {
                         ]),
                         createVNode("div", { class: "row mx-0 border py-3 px-3 gap-y-5" }, [
                           createVNode("div", { class: "col-12 col-md-4" }, [
-                            createVNode("h4", { class: "text-lg md:text-xl mb-3" }, "Order Summary"),
+                            createVNode("h4", { class: "text-lg md:text-xl mb-3" }, " Order Summary "),
                             createVNode("p", { class: "flex justify-between mb-3 font-bold" }, [
                               createVNode("span", { class: "text-sm" }, "Subtotal "),
                               createVNode("b", { class: "text-sm" }, " $" + toDisplayString(cart.value.subtotal), 1)
@@ -5122,16 +5191,16 @@ const _sfc_main$e = {
     const props = __props;
     const loading = ref(false);
     return (_ctx, _push, _parent, _attrs) => {
-      _push(`<a${ssrRenderAttrs(mergeProps({
+      _push(`<button${ssrRenderAttrs(mergeProps({
         class: "btn btn-prime d-flex justify-content-center items-center gap-3",
-        disabled: loading.value || props.disabled ? true : void 0
-      }, _attrs))} data-v-ee1c74b5>`);
+        disabled: loading.value || props.disabled
+      }, _attrs))} data-v-ef2d2efc><span data-v-ef2d2efc>Add To Cart </span>`);
       if (loading.value) {
         _push(ssrRenderComponent(Spinner, null, null, _parent));
       } else {
         _push(`<!---->`);
       }
-      _push(`<span data-v-ee1c74b5>Add To Cart </span></a>`);
+      _push(`</button>`);
     };
   }
 };
@@ -5141,7 +5210,7 @@ _sfc_main$e.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/components/AddToCartButton.vue");
   return _sfc_setup$e ? _sfc_setup$e(props, ctx) : void 0;
 };
-const AddToCartButton = /* @__PURE__ */ _export_sfc(_sfc_main$e, [["__scopeId", "data-v-ee1c74b5"]]);
+const AddToCartButton = /* @__PURE__ */ _export_sfc(_sfc_main$e, [["__scopeId", "data-v-ef2d2efc"]]);
 const _sfc_main$d = {
   name: "ReviewForm",
   components: {
@@ -5234,32 +5303,48 @@ const _sfc_main$c = {
         }, []);
       }
     );
-    const mainAttribues = computed(() => prodAttribues.value.find((i) => i.type == props.variantType));
-    const subAttribues = computed(() => prodAttribues.value.filter((i) => i.type != props.variantType));
+    const mainAttribues = computed(
+      () => prodAttribues.value.find((i) => i.type == props.variantType)
+    );
+    const subAttribues = computed(
+      () => prodAttribues.value.filter((i) => i.type != props.variantType)
+    );
     function variantImg(value) {
       var _a, _b;
       return (_b = (_a = props.variants.find((i) => i[props.variantType] == value)) == null ? void 0 : _a.images) == null ? void 0 : _b.split(",")[0];
     }
-    const avaliableAttributes = computed(() => props.variants.filter((i) => i[props.variantType] == selectedAttributes.value[props.variantType]));
+    const avaliableAttributes = computed(
+      () => props.variants.filter(
+        (i) => i[props.variantType] == selectedAttributes.value[props.variantType]
+      )
+    );
     const isAvailable = (type, value) => {
       return !avaliableAttributes.value.find((i) => i[type] && i[type] === value);
     };
     const selectedVariant = ref(void 0);
-    watch(() => selectedAttributes.value, () => {
-      var _a;
-      const values = (_a = subAttribues.value) == null ? void 0 : _a.reduce((acc, attr) => {
-        acc = acc.filter((i) => i[attr.type] == selectedAttributes.value[attr.type]);
-        if (!acc.length) delete selectedAttributes.value[attr.type];
-        return acc;
-      }, avaliableAttributes.value);
-      selectedVariant.value = values == null ? void 0 : values[0];
-    }, { deep: true });
+    watch(
+      () => selectedAttributes.value,
+      () => {
+        var _a;
+        const values = (_a = subAttribues.value) == null ? void 0 : _a.reduce((acc, attr) => {
+          acc = acc.filter(
+            (i) => i[attr.type] == selectedAttributes.value[attr.type]
+          );
+          if (!acc.length) delete selectedAttributes.value[attr.type];
+          return acc;
+        }, avaliableAttributes.value);
+        selectedVariant.value = values == null ? void 0 : values[0];
+      },
+      { deep: true }
+    );
     const quantity = ref(1);
     return (_ctx, _push, _parent, _attrs) => {
       var _a, _b, _c, _d;
       _push(`<div${ssrRenderAttrs(_attrs)}><div><h5>${ssrInterpolate(mainAttribues.value.type)}</h5><div class="d-flex gap-2 main-attributes"><!--[-->`);
       ssrRenderList(mainAttribues.value.values, (value, index) => {
-        _push(`<div><input type="radio" class="d-none"${ssrRenderAttr("name", mainAttribues.value.type)}${ssrRenderAttr("value", value)}${ssrRenderAttr("id", `product_attr_${value}`)}${ssrIncludeBooleanAttr(ssrLooseEqual(selectedAttributes.value[mainAttribues.value.type], value)) ? " checked" : ""}><label${ssrRenderAttr("for", `product_attr_${value}`)} class="mb-0"><img${ssrRenderAttr("src", `/assets/images/products/${variantImg(value)}`)} alt=""></label></div>`);
+        _push(`<div><input type="radio" class="d-none"${ssrRenderAttr("name", mainAttribues.value.type)}${ssrRenderAttr("value", value)}${ssrRenderAttr("id", `product_attr_${value}`)}${ssrIncludeBooleanAttr(ssrLooseEqual(selectedAttributes.value[mainAttribues.value.type], value)) ? " checked" : ""}><label${ssrRenderAttr("for", `product_attr_${value}`)} class="mb-0"><img${ssrRenderAttr("src", `/assets/images/products/${variantImg(
+          value
+        )}`)} alt=""></label></div>`);
       });
       _push(`<!--]--></div></div><!--[-->`);
       ssrRenderList(subAttribues.value, (attr, index) => {
@@ -5280,7 +5365,7 @@ const _sfc_main$c = {
       } else {
         _push(`<!---->`);
       }
-      _push(`<div class="my-3">`);
+      _push(`<div class="mt-3">`);
       _push(ssrRenderComponent(AddToCartButton, {
         productId: props.productId,
         drawer: false,
@@ -6305,7 +6390,7 @@ const _sfc_main$3 = {
       return Object.keys(FILTERS).some((key) => FILTERS[key].length) || FilterPrice.value;
     });
     return (_ctx, _push, _parent, _attrs) => {
-      _push(`<div${ssrRenderAttrs(mergeProps({ class: "col-lg-3 col-md-4 col-sm-4 col-xs-12 sitebar position-sticky" }, _attrs))} data-v-f19738fb>`);
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "col-lg-3 col-md-4 col-sm-4 col-xs-12 sitebar position-sticky" }, _attrs))} data-v-20ca8a04>`);
       _push(ssrRenderComponent(_sfc_main$4, {
         title: "category",
         items: props.categories,
@@ -6333,9 +6418,9 @@ const _sfc_main$3 = {
         modelValue: FILTERS.size,
         "onUpdate:modelValue": ($event) => FILTERS.size = $event
       }, null, _parent));
-      _push(`<div class="widget mercado-widget filter-widget price-filter" data-v-f19738fb><h2 class="widget-title mb-2" data-v-f19738fb>Price</h2><p class="row mx-0 pricefiltercheckbox" data-v-f19738fb><input type="checkbox" id="useprice" class="input"${ssrIncludeBooleanAttr(Array.isArray(FilterPrice.value) ? ssrLooseContain(FilterPrice.value, null) : FilterPrice.value) ? " checked" : ""} data-v-f19738fb><label for="useprice" class="colors" data-v-f19738fb>Apply Price Filter</label></p><div class="widget-content" data-v-f19738fb><div id="slider-range" data-v-f19738fb></div><p data-v-f19738fb><label for="amount" data-v-f19738fb>Price:</label><input type="text" id="amount" readonly data-v-f19738fb></p></div><input type="hidden" id="minprice"${ssrRenderAttr("value", RANGE_PRICE[0])} data-v-f19738fb><input type="hidden" id="maxprice"${ssrRenderAttr("value", RANGE_PRICE[1])} data-v-f19738fb><input type="hidden" id="RangeVlaue"${ssrRenderAttr("value", priceRangeValue.value)} data-v-f19738fb></div><div class="d-flex gap-2 flex-wrap" data-v-f19738fb><button${ssrIncludeBooleanAttr(!filtersHasValues.value) ? " disabled" : ""} class="border border-[#e6e3de] bg-[#ff2832] text-white hover:text-black hover:bg-[#ddd] py-3 px-4 text-center font-medium transition-colors duration-200 shadow-sm" data-v-f19738fb> FILTER </button>`);
+      _push(`<div class="widget mercado-widget filter-widget price-filter" data-v-20ca8a04><h2 class="widget-title mb-2" data-v-20ca8a04>Price</h2><p class="row mx-0 pricefiltercheckbox" data-v-20ca8a04><input type="checkbox" id="useprice" class="input"${ssrIncludeBooleanAttr(Array.isArray(FilterPrice.value) ? ssrLooseContain(FilterPrice.value, null) : FilterPrice.value) ? " checked" : ""} data-v-20ca8a04><label for="useprice" class="colors" data-v-20ca8a04>Apply Price Filter</label></p><div class="widget-content" data-v-20ca8a04><div id="slider-range" data-v-20ca8a04></div><p data-v-20ca8a04><label for="amount" data-v-20ca8a04>Price:</label><input type="text" id="amount" readonly data-v-20ca8a04></p></div><input type="hidden" id="minprice"${ssrRenderAttr("value", RANGE_PRICE[0])} data-v-20ca8a04><input type="hidden" id="maxprice"${ssrRenderAttr("value", RANGE_PRICE[1])} data-v-20ca8a04><input type="hidden" id="RangeVlaue"${ssrRenderAttr("value", priceRangeValue.value)} data-v-20ca8a04></div><div class="d-flex gap-2 flex-wrap" data-v-20ca8a04><button${ssrIncludeBooleanAttr(!filtersHasValues.value) ? " disabled" : ""} class="border border-[#e6e3de] bg-[#ff2832] text-white hover:text-black hover:bg-[#ddd] py-3 px-4 text-center font-medium transition-colors duration-200 shadow-sm" data-v-20ca8a04> FILTER </button>`);
       if (hasAppliedFilters.value) {
-        _push(`<button class="flex-1 bg-[#444444] hover:bg-[#ddd] text-white hover:text-black py-3 px-4 text-center font-medium transition-colors duration-200" data-v-f19738fb> CLEAR FILTER </button>`);
+        _push(`<button class="flex-1 bg-[#444444] hover:bg-[#ddd] text-white hover:text-black py-3 px-4 text-center font-medium transition-colors duration-200" data-v-20ca8a04> CLEAR FILTER </button>`);
       } else {
         _push(`<!---->`);
       }
@@ -6349,7 +6434,7 @@ _sfc_main$3.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/components/FilterSection.vue");
   return _sfc_setup$3 ? _sfc_setup$3(props, ctx) : void 0;
 };
-const FilterSection = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["__scopeId", "data-v-f19738fb"]]);
+const FilterSection = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["__scopeId", "data-v-20ca8a04"]]);
 const _sfc_main$2 = {
   __name: "AddToCartDrawer",
   __ssrInlineRender: true,
@@ -6359,15 +6444,15 @@ const _sfc_main$2 = {
       var _a;
       _push(`<div${ssrRenderAttrs(mergeProps({
         class: ["cart-drawer", { "cart-drawer--open": unref(DRAWER).isOpen }]
-      }, _attrs))} data-v-2b3e3e53><div class="cart-drawer__overlay" data-v-2b3e3e53></div><div class="cart-drawer__content" data-v-2b3e3e53><div class="cart-drawer__header" data-v-2b3e3e53><h2 class="cart-drawer__title" data-v-2b3e3e53>Your Cart</h2><button class="cart-drawer__close" data-v-2b3e3e53><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-2b3e3e53><line x1="18" y1="6" x2="6" y2="18" data-v-2b3e3e53></line><line x1="6" y1="6" x2="18" y2="18" data-v-2b3e3e53></line></svg></button></div>`);
+      }, _attrs))} data-v-4359c734><div class="cart-drawer__overlay" data-v-4359c734></div><div class="cart-drawer__content" data-v-4359c734><div class="cart-drawer__header" data-v-4359c734><h2 class="cart-drawer__title" data-v-4359c734>Your Cart</h2><button class="cart-drawer__close" data-v-4359c734><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4359c734><line x1="18" y1="6" x2="6" y2="18" data-v-4359c734></line><line x1="6" y1="6" x2="18" y2="18" data-v-4359c734></line></svg></button></div>`);
       if (unref(DRAWER).drawerContent) {
-        _push(`<div class="cart-drawer__body" data-v-2b3e3e53><div class="product-gallery" data-v-2b3e3e53><ul data-v-2b3e3e53><!--[-->`);
+        _push(`<div class="cart-drawer__body" data-v-4359c734><div class="product-gallery" data-v-4359c734><ul data-v-4359c734><!--[-->`);
         ssrRenderList(unref(DRAWER).drawerContent.images.split(","), (img, index) => {
-          _push(`<li data-v-2b3e3e53><img${ssrRenderAttr("src", `/assets/images/products/${img}`)} alt="product images" data-v-2b3e3e53></li>`);
+          _push(`<li data-v-4359c734><img${ssrRenderAttr("src", `/assets/images/products/${img}`)} alt="product images" data-v-4359c734></li>`);
         });
-        _push(`<!--]--></ul></div><br data-v-2b3e3e53><div data-v-2b3e3e53><h3 class="font-medium mb-3" data-v-2b3e3e53>${ssrInterpolate(unref(DRAWER).drawerContent.name)}</h3><h4 class="font-bold" data-v-2b3e3e53>$${ssrInterpolate(unref(DRAWER).drawerContent.price)}</h4></div>`);
+        _push(`<!--]--></ul></div><br data-v-4359c734><div data-v-4359c734><h3 class="font-medium mb-3" data-v-4359c734>${ssrInterpolate(unref(DRAWER).drawerContent.name)}</h3><h4 class="font-bold" data-v-4359c734>$${ssrInterpolate(unref(DRAWER).drawerContent.price)}</h4></div>`);
         if ((_a = unref(DRAWER).drawerContent.variants) == null ? void 0 : _a.length) {
-          _push(`<div data-v-2b3e3e53>`);
+          _push(`<div data-v-4359c734>`);
           _push(ssrRenderComponent(_sfc_main$c, {
             variants: unref(DRAWER).drawerContent.variants,
             variantType: unref(DRAWER).drawerContent.variantType,
@@ -6375,14 +6460,14 @@ const _sfc_main$2 = {
           }, null, _parent));
           _push(`</div>`);
         } else {
-          _push(`<div class="mt-4 mb-2" data-v-2b3e3e53>`);
+          _push(`<div class="mt-4 mb-2" data-v-4359c734>`);
           _push(ssrRenderComponent(AddToCartButton, {
             productId: unref(DRAWER).drawerContent.id,
             drawer: false
           }, null, _parent));
           _push(`</div>`);
         }
-        _push(`<a${ssrRenderAttr("href", `/products/${unref(DRAWER).drawerContent.slug}`)} class="text-gray-700 underline text-base hover:text-gray-100" data-v-2b3e3e53>view more details</a></div>`);
+        _push(`<a${ssrRenderAttr("href", `/products/${unref(DRAWER).drawerContent.slug}`)} class="my-3 text-gray-700 underline text-base hover:text-gray-100" data-v-4359c734>view more details</a></div>`);
       } else {
         _push(`<!---->`);
       }
@@ -6396,7 +6481,7 @@ _sfc_main$2.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/components/AddToCartDrawer.vue");
   return _sfc_setup$2 ? _sfc_setup$2(props, ctx) : void 0;
 };
-const AddToCartDrawer = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__scopeId", "data-v-2b3e3e53"]]);
+const AddToCartDrawer = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__scopeId", "data-v-4359c734"]]);
 const _sfc_main$1 = {
   __name: "ProductSkelton",
   __ssrInlineRender: true,
@@ -6437,11 +6522,8 @@ const _sfc_main = {
       return locationURL.split("?")[1];
     });
     const Getproducts = async (url) => {
-      const params = new URLSearchParams(url_search.value);
       try {
-        const { data } = await API.get(url, {
-          params: Object.fromEntries(params.entries())
-        });
+        const { data } = await API.get(url);
         products.value = data.data;
         pagination.value = { ...data, data: void 0 };
       } catch (error) {
@@ -6454,7 +6536,12 @@ const _sfc_main = {
       const pathname = locationURL.split("?")[0];
       return `shop-products/${props.pageType + pathname}`;
     });
-    Getproducts(routeParam.value);
+    function initGettingProducts() {
+      const params = new URLSearchParams(url_search.value);
+      const search = params.toString();
+      Getproducts(search ? `${routeParam.value}?${search}` : routeParam.value);
+    }
+    initGettingProducts();
     const pginationClick = (url) => {
       Getproducts(url);
       window.scrollTo({ top: 140, behavior: "smooth" });

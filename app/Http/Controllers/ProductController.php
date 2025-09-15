@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -129,8 +130,13 @@ class ProductController extends Controller
 
     protected function getProductsByCategory(string $slug)
     {
-        $results = DB::select("CALL GetCategoryTree(?)", [$slug]);
-        $categoryIds = collect($results)->pluck('id')->all();
+        // $results = DB::select("CALL GetCategoryTree(?)", [$slug]);
+        // $categoryIds = collect($results)->pluck('id')->all();
+
+        // return $this->getFilteredProducts(
+        //     Product::whereIn("categoryId", $categoryIds)
+        // );
+        $categoryIds = Category::getCategoryTreeIds($slug);
 
         return $this->getFilteredProducts(
             Product::whereIn("categoryId", $categoryIds)
@@ -168,7 +174,7 @@ class ProductController extends Controller
      */
     protected function getFilteredProducts($query)
     {
-        
+
         return $this->applyFilters($query)
             ->select(self::PRODUCT_LIST_FIELDS)
             ->paginate(15);
@@ -256,10 +262,10 @@ class ProductController extends Controller
         $product = Product::with('variants')
             ->select(["id", "name", "slug", "price", "SKU", "quantity", "images", "variantType"])
             ->findOrFail($request->input("id"));
-        
+
         $product->variants->makeHidden(['productId', 'createdAt', 'updatedAt']);
         $product->variants->each(function ($variant) {
-            $variant->setRawAttributes(collect($variant)->filter()->all()); 
+            $variant->setRawAttributes(collect($variant)->filter()->all());
         });
 
 
@@ -277,10 +283,10 @@ class ProductController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
-            $product->variants->makeHidden(['productId', 'createdAt', 'updatedAt']);
-            $product->variants->each(function ($variant) {
-                $variant->setRawAttributes(collect($variant)->filter()->all()); 
-            });
+        $product->variants->makeHidden(['productId', 'createdAt', 'updatedAt']);
+        $product->variants->each(function ($variant) {
+            $variant->setRawAttributes(collect($variant)->filter()->all());
+        });
 
 
         return Inertia::render("ProductDetails", ['product' => $product]);
@@ -288,7 +294,8 @@ class ProductController extends Controller
 
 
 
-    public function recommendedProducts(){
+    public function recommendedProducts()
+    {
         $recommendedProducts = Product::inRandomOrder()->take(5)->select("id", "name", "price", "images", "slug", 'categoryId')->with([
             "category" => function ($q) {
                 $q->select('id', 'name', "slug")->get();

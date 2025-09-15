@@ -5,11 +5,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/css/font-awesome.min.css', 'resources/css/bootstrap.min.css', 'resources/css/owl.carousel.min.css', 'resources/css/flexslider.css', 'resources/css/style.css', 'resources/css/color-01.css'])
 
-    
+
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}" />
 
     <style>
@@ -27,13 +28,9 @@
 
         @font-face {
             font-family: "Font Awesome 6 Free";
-
             font-style: normal;
-
             font-weight: 900;
-
             font-display: block;
-
             src: url("/assets/webfonts/fa-solid-900.woff2") format("woff2"),
                 url("/assets/webfonts/fa-solid-900.ttf") format("truetype");
         }

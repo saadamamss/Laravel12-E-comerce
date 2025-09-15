@@ -4,7 +4,7 @@ import Pusher from "pusher-js";
 //
 window.axios = axios;
 
-window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+// window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 
 window.Pusher = Pusher;
 
@@ -13,4 +13,13 @@ window.Echo = new Echo({
     key: import.meta.env.VITE_PUSHER_APP_KEY,
     cluster: "mt1",
     forceTLS: true,
+    host: "api-mt1.pusher.com",
+    httpPort: 443,
+    httpsPort: 443,
+    encrypted: true,
+    auth: {
+        headers: {
+            'X-CSRF-TOKEN': "qJgB09MpgTKNw5vDU0mrJE6Sz8AxGFCDjH7BxRUU",
+        }
+    }
 });

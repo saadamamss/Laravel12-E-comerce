@@ -15,7 +15,6 @@ export default defineConfig({
                 "resources/css/style.css",
                 "resources/css/color-01.css",
             ],
-
             ssr: "resources/js/ssr.js",
             refresh: true,
         }),

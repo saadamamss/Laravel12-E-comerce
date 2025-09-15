@@ -13,7 +13,7 @@
             ></a>
         </div>
 
-        <div style="flex: 1" class="d-flex justify-content-center">
+        <div style="flex: 1" class="d-flex justify-content-center item-qty">
             <Spinner v-if="loader" />
             <span v-else>
                 {{ quantity }}
@@ -66,3 +66,12 @@ async function UpdateCart(updateQty) {
     }
 }
 </script>
+<style scoped>
+.quantity-input {
+    height: 45px;
+}
+.item-qty .spinner-border {
+    width: 14px;
+    height: 14px;
+}
+</style>

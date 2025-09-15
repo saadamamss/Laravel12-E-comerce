@@ -1,5 +1,7 @@
 <?php
 
+use App\Events\NewMessage;
+use App\Events\PrivateMessage;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
@@ -9,6 +11,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ContactController;
+use App\Notifications\TestNotification;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -25,7 +28,27 @@ Route::get('/', function () {
 
 })->name("home");
 
+Route::get('/test', function () {
+    $user = auth()->user();
+    $user->notify(new TestNotification("test notification"));
 
+    $message = "Test message";
+
+    // تأكد من أن الحدث implements ShouldBroadcast
+    event(new NewMessage(1, $message));
+    event(new PrivateMessage(1, $message));
+
+    // للتحقق - يمكنك استخدام Log
+    \Log::info('Event fired: ' . $message . ' at ' . now());
+
+    // return response()->json(['status' => 'Message sent']);
+    return "sent";
+});
+
+Route::get('/test2', function () {
+    $user = auth()->user();
+    return "sent";
+});
 
 Route::get('/shop', [ProductController::class, "showAllShop"])->name("shop");
 
